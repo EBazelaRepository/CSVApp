@@ -1,0 +1,46 @@
+import pandas as pd
+
+df1 = pd.read_csv("1plik_csv_temp.csv", header=0, sep=";")
+df2 = pd.read_csv("2.csv", header=0, sep=";")
+
+
+# create concatenated name + lastname column
+def concatenate_str_columns(data_frame, column1_name, column2_name, final_column):
+    data_frame[str(final_column)] = data_frame[str(column1_name)] + ' ' + data_frame[str(column2_name)]
+    return data_frame[str(final_column)]
+
+
+def to_upper_case(df, column_name):
+    str_col = str(column_name)
+    return df[str_col].str.upper()
+
+
+def find_indices(df1, df2):
+    df3 = pd.DataFrame()
+    df1_index = 0
+    for row in df1:
+        df1_index += 1
+        df2_index = 1
+        index_list = []
+        for line in df2:
+            if row == line:
+                index_list.append(df2_index)
+            df2_index += 1
+        list_dataframe = pd.Series([index_list])
+        df3 = df3.append(list_dataframe, ignore_index=True)
+    return df3
+
+
+concatenate_str_columns(df1, "Nazwisko", "Imie", "Name")
+
+upper_df1 = to_upper_case(df1, "Name")
+upper_df2 = to_upper_case(df2, "Pacjent")
+
+long_column = find_indices(upper_df2, upper_df1)
+short_column = find_indices(upper_df1, upper_df2)
+
+new_df1 = pd.concat([df1, short_column], axis=1)
+new_df2 = pd.concat([df2, long_column], axis=1)
+
+new_df1.to_csv('new_file1.csv', sep=";")
+new_df2.to_csv('new_file2.csv', sep=";")
